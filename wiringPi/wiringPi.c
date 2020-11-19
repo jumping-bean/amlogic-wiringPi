@@ -44,6 +44,7 @@
 #include "odroidn1.h"
 #include "odroidn2.h"
 #include "odroidc4.h"
+#include "bananapim5.h"
 
 /*----------------------------------------------------------------------------*/
 // Const string define
@@ -61,6 +62,7 @@ const char *piModelNames [16] =
 	"ODROID-N2/N2Plus",
 	"ODROID-C4",
 	"ODROID-HC4",
+	"BPI-M5",
 };
 
 const char *piRevisionNames [16] =
@@ -377,8 +379,11 @@ int getModelFromCpuinfo(char *line, FILE *cpuFd) {
 				printf("piGpioLayout: %s: Hardware: %s\n", __func__, line);
 
 			model = strcasestr(line, "odroid");
-			if (!model)
-				return -1;
+			if (!model) {
+				model = strcasestr(line, "BPI");
+				if (!model)
+					return -1;
+			}
 
 			strcpy(line, model);
 			return 0;
@@ -503,6 +508,11 @@ int piGpioLayout (void) {
 			libwiring.rev = 1;
 			break;
 		case MODEL_ODROID_HC4:
+			libwiring.maker = MAKER_AMLOGIC;
+			libwiring.mem = 4;
+			libwiring.rev = 1;
+			break;
+		case MODEL_BANANAPI_M5:
 			libwiring.maker = MAKER_AMLOGIC;
 			libwiring.mem = 4;
 			libwiring.rev = 1;
@@ -1107,7 +1117,24 @@ static 	void UNU piGpioLayoutOops	(const char UNU *why)	{ warn_msg(__func__); re
 /*----------------------------------------------------------------------------*/
 struct wiringPiNodeStruct *wiringPiNodes = NULL ;
 
-struct wiringPiNodeStruct *wiringPiFindNode (int UNU pin) {	return NULL; }
+/*
+ * wiringPiFindNode:
+ *      Locate our device node
+ *********************************************************************************
+ */
+
+struct wiringPiNodeStruct *wiringPiFindNode (int pin)
+{
+  struct wiringPiNodeStruct *node = wiringPiNodes ;
+
+  while (node != NULL)
+    if ((pin >= node->pinBase) && (pin <= node->pinMax))
+      return node ;
+    else
+      node = node->next ;
+
+  return NULL ;
+}
 
 static		void pinModeDummy		(UNU struct wiringPiNodeStruct *node, UNU int pin, UNU int mode)  { return ; }
 static		void pullUpDnControlDummy	(UNU struct wiringPiNodeStruct *node, UNU int pin, UNU int pud)   { return ; }
@@ -1216,6 +1243,9 @@ int wiringPiSetup (void)
 	break;
 	case MODEL_ODROID_HC4:
 		init_odroidhc4(&libwiring);
+	break;
+	case MODEL_BANANAPI_M5:
+		init_bananapim5(&libwiring);
 	break;
 	default:
 		return wiringPiFailure (WPI_ALMOST,

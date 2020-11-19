@@ -48,7 +48,9 @@ SRC	=	blink.c blink8.c blink12.c					\
 		delayTest.c serialRead.c serialTest.c okLed.c ds1302.c		\
 		lowPower.c							\
 		max31855.c							\
-		rht03.c
+		rht03.c								\
+		blinkall.c lcd-bpi.c 52pi-bpi.c matrixled-bpi.c			\
+		berryclip-bpi.c
 
 OBJ	=	$(SRC:.c=.o)
 
@@ -64,6 +66,10 @@ really-all:	$(BINS)
 blink:	blink.o
 	$Q echo [link]
 	$Q $(CC) -o $@ blink.o $(LDFLAGS) $(LDLIBS)
+
+blinkall: blinkall.o
+	$Q echo [link]
+	$Q $(CC) -o $@ blinkall.o $(LDFLAGS) $(LDLIBS)
 
 blink8:	blink8.o
 	$Q echo [link]
@@ -88,6 +94,10 @@ lcd:	lcd.o
 lcd-adafruit:	lcd-adafruit.o
 	$Q echo [link]
 	$Q $(CC) -o $@ lcd-adafruit.o $(LDFLAGS) $(LDLIBS)
+
+lcd-bpi:   lcd-bpi.o
+	$Q echo [link]
+	$Q $(CC) -o $@ lcd-bpi.o $(LDFLAGS) $(LDLIBS)
 
 clock:	clock.o
 	$Q echo [link]
@@ -152,6 +162,18 @@ ds1302:	ds1302.o
 max31855:	max31855.o
 	$Q echo [link]
 	$Q $(CC) -o $@ max31855.o $(LDFLAGS) $(LDLIBS)
+
+52pi-bpi:       52pi-bpi.o
+	$Q echo [link]
+	$Q $(CC) -o $@ 52pi-bpi.o $(LDFLAGS) $(LDLIBS)
+
+matrixled-bpi:       matrixled-bpi.o
+	$Q echo [link]
+	$Q $(CC) -o $@ matrixled-bpi.o $(LDFLAGS) $(LDLIBS)
+
+berryclip-bpi:       berryclip-bpi.o
+	$Q echo [link]
+	$Q $(CC) -o $@ berryclip-bpi.o $(LDFLAGS) $(LDLIBS)
 
 .c.o:
 	$Q echo [CC] $<
